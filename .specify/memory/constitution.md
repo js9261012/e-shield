@@ -1,50 +1,80 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: N/A → 1.0.0 (Initial creation)
+Modified principles: N/A (new constitution)
+Added sections: Core Principles, Development Workflow, Governance
+Templates requiring updates:
+  - ✅ .specify/templates/plan-template.md (已建立並與憲章一致)
+  - ✅ .specify/templates/spec-template.md (已建立並與憲章一致)
+  - ✅ .specify/templates/tasks-template.md (已建立並與憲章一致)
+Follow-up TODOs: None
+-->
 
-## Core Principles
+# E-Shield 專案憲章
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+## 核心原則
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### I. 最小可行產品 (MVP)
+所有功能開發必須遵循最小可行產品原則。僅實作當前階段必需的功能，避免預先實作未來可能需要的功能。每個功能必須有明確的業務價值和使用場景。禁止過度設計（overdesign）和過早優化。
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**理由**：確保專案能夠快速迭代，降低複雜度，並專注於解決實際問題。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. 可測試性 (Testable) - 非協商原則
+所有程式碼必須可測試。在實作功能之前，必須先撰寫測試。遵循測試驅動開發（TDD）的紅-綠-重構循環：撰寫測試 → 測試失敗 → 實作功能 → 測試通過 → 重構。單元測試覆蓋率必須達到最低標準（核心邏輯至少 80%）。
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+**理由**：可測試的程式碼品質更高、更易維護，並能確保功能的正確性。
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### III. 高品質標準
+程式碼必須符合以下品質標準：清晰的命名、適當的註解、遵循一致的程式碼風格、無明顯的技術債。所有程式碼必須通過靜態分析工具檢查。複雜度必須被合理控制，過於複雜的邏輯必須被重構或拆分。
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**理由**：高品質的程式碼降低維護成本，提高團隊協作效率，並減少錯誤發生率。
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### IV. 正體中文優先
+所有文件、註解、變數命名（在技術允許的情況下）、使用者介面文字、錯誤訊息必須使用正體中文。技術術語可使用英文，但必須提供中文說明。API 文件和使用者文件必須以正體中文撰寫。
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**理由**：確保本地化團隊和中文使用者能夠更好地理解和使用專案。
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### V. 漸進式開發
+功能開發採用漸進式方法：先建立可運行的最小版本，然後根據實際需求逐步擴展。每個迭代都應該產生可交付的成果。避免一次性實作大型功能。
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+**理由**：降低風險，提高可預測性，並允許早期獲得回饋。
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+## 開發工作流程
+
+### 測試優先
+- 所有新功能必須先有測試
+- 測試必須在實作前通過審查
+- 修復錯誤時必須先撰寫重現測試
+
+### 程式碼審查
+- 所有程式碼變更必須經過審查
+- 審查重點：是否符合 MVP 原則、測試覆蓋率、程式碼品質、正體中文使用
+- 審查者必須驗證是否符合憲章原則
+
+### 文件要求
+- 所有公開 API 必須有文件
+- 複雜的業務邏輯必須有註解說明
+- 文件必須使用正體中文撰寫
+
+## 治理
+
+本憲章優先於所有其他開發實踐和指南。所有開發決策必須符合本憲章的原則。
+
+### 修訂程序
+- 修訂提案必須說明理由和影響範圍
+- 重大修訂（影響核心原則）需要團隊共識
+- 修訂後必須更新相關範本和文件
+- 修訂必須記錄版本變更和日期
+
+### 合規性檢查
+- 所有 Pull Request 必須驗證是否符合憲章原則
+- 定期進行程式碼品質審查
+- 違反原則的程式碼必須修正後才能合併
+
+### 版本管理
+- 使用語義化版本控制（Semantic Versioning）
+- MAJOR：破壞性變更或核心原則的重大調整
+- MINOR：新功能或新原則的加入
+- PATCH：澄清、修正、非語義性的改進
+
+**版本**: 1.0.0 | **制定日期**: 2025-01-27 | **最後修訂**: 2025-01-27

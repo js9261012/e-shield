@@ -1,0 +1,443 @@
+openapi: 3.0.3
+info:
+  title: 反爬蟲排隊系統 API
+  description: 用於搶購稀有球鞋的反爬蟲排隊系統 API 文件
+  version: 1.0.0
+  contact:
+    name: E-Shield Team
+
+servers:
+  - url: http://localhost:8000/api
+    description: 本地開發環境
+  - url: http://localhost:8000/api
+    description: Docker Compose 環境
+
+tags:
+  - name: 商品
+    description: 商品相關 API
+  - name: 佇列
+    description: 佇列相關 API
+  - name: 購買
+    description: 購買相關 API
+
+paths:
+  /products:
+    get:
+      tags:
+        - 商品
+      summary: 取得商品列表
+      description: 取得所有可購買的商品列表
+      operationId: getProducts
+      responses:
+        '200':
+          description: 成功取得商品列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /products/{product_id}:
+    get:
+      tags:
+        - 商品
+      summary: 取得商品詳情
+      description: 根據商品 ID 取得商品詳細資訊
+      operationId: getProduct
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 商品 ID
+      responses:
+        '200':
+          description: 成功取得商品詳情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /queue/join:
+    post:
+      tags:
+        - 佇列
+      summary: 加入佇列
+      description: |
+        **重要：必須先通過 Turnstile 驗證才能加入佇列**
+        
+        流程：
+        1. 使用者在前端完成 Turnstile widget 驗證，獲得 token
+        2. 發送此 API 請求，包含有效的 turnstile_token
+        3. 後端驗證 Turnstile token
+        4. 驗證成功 → 加入 Redis 佇列
+        5. 驗證失敗 → 返回 403 錯誤，**不會加入佇列**
+      operationId: joinQueue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinQueueRequest'
+      responses:
+        '200':
+          description: 成功加入佇列
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinQueueResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: Turnstile 驗證失敗，無法加入佇列
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: INVALID_TURNSTILE_TOKEN
+                message: Turnstile 驗證失敗，無法加入佇列
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /queue/status:
+    get:
+      tags:
+        - 佇列
+      summary: 查詢佇列狀態
+      description: 查詢當前使用者的佇列狀態
+      operationId: getQueueStatus
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 會話 ID
+        - name: product_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 商品 ID
+      responses:
+        '200':
+          description: 成功取得佇列狀態
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueStatus'
+        '404':
+          description: 使用者不在佇列中
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /queue/stream:
+    get:
+      tags:
+        - 佇列
+      summary: 佇列狀態即時推送 (SSE)
+      description: 使用 Server-Sent Events 推送佇列狀態更新
+      operationId: streamQueueStatus
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 會話 ID
+        - name: product_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 商品 ID
+      responses:
+        '200':
+          description: SSE 串流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  event: queue_update
+                  data: {"queue_position":5,"total_in_queue":100,"status":"waiting"}
+                  
+                  event: queue_update
+                  data: {"queue_position":4,"total_in_queue":99,"status":"waiting"}
+        '404':
+          description: 使用者不在佇列中
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /purchase:
+    post:
+      tags:
+        - 購買
+      summary: 處理購買
+      description: 處理使用者的購買請求（必須輪到使用者才能購買）
+      operationId: purchase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '200':
+          description: 購買成功或失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          description: 尚未輪到使用者或購買時限已過
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - image_url
+        - price
+        - total_stock
+        - remaining_stock
+      properties:
+        id:
+          type: string
+          description: 商品 ID
+          example: "1"
+        name:
+          type: string
+          description: 商品名稱
+          example: "限量球鞋 A"
+        image_url:
+          type: string
+          format: uri
+          description: 商品圖片 URL
+          example: "https://example.com/shoe-a.jpg"
+        price:
+          type: integer
+          description: 價格（分）
+          example: 9999
+        total_stock:
+          type: integer
+          description: 總庫存
+          example: 5
+        remaining_stock:
+          type: integer
+          description: 剩餘庫存
+          example: 3
+
+    JoinQueueRequest:
+      type: object
+      required:
+        - product_id
+        - turnstile_token
+      properties:
+        product_id:
+          type: string
+          description: 商品 ID
+          example: "1"
+        turnstile_token:
+          type: string
+          description: Cloudflare Turnstile 驗證 token
+          example: "0.abc123..."
+
+    JoinQueueResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: 是否成功
+          example: true
+        session_id:
+          type: string
+          description: 會話 ID（成功時）
+          example: "abc123..."
+        queue_position:
+          type: integer
+          description: 佇列位置（成功時）
+          example: 10
+        message:
+          type: string
+          description: 訊息
+          example: "已成功加入佇列"
+        error:
+          type: string
+          description: 錯誤代碼（失敗時）
+          enum:
+            - INVALID_TURNstile_TOKEN
+            - PRODUCT_NOT_FOUND
+            - ALREADY_IN_QUEUE
+
+    QueueStatus:
+      type: object
+      required:
+        - session_id
+        - queue_position
+        - total_in_queue
+        - estimated_wait_time
+        - status
+        - product_id
+      properties:
+        session_id:
+          type: string
+          description: 會話 ID
+          example: "abc123..."
+        queue_position:
+          type: integer
+          description: 當前佇列位置（0-based，0 表示輪到）
+          example: 5
+        total_in_queue:
+          type: integer
+          description: 佇列總人數
+          example: 100
+        estimated_wait_time:
+          type: integer
+          description: 預估等待時間（秒）
+          example: 300
+        status:
+          type: string
+          description: 狀態
+          enum:
+            - waiting
+            - ready_to_purchase
+            - purchased
+            - expired
+          example: "waiting"
+        product_id:
+          type: string
+          description: 商品 ID
+          example: "1"
+
+    PurchaseRequest:
+      type: object
+      required:
+        - product_id
+        - quantity
+        - session_id
+      properties:
+        product_id:
+          type: string
+          description: 商品 ID
+          example: "1"
+        quantity:
+          type: integer
+          description: 購買數量（固定為 1）
+          minimum: 1
+          maximum: 1
+          example: 1
+        session_id:
+          type: string
+          description: 會話 ID
+          example: "abc123..."
+
+    PurchaseResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: 是否成功
+          example: true
+        order_id:
+          type: string
+          description: 訂單 ID（成功時）
+          example: "order_abc123..."
+        product_id:
+          type: string
+          description: 商品 ID（成功時）
+          example: "1"
+        quantity:
+          type: integer
+          description: 購買數量（成功時）
+          example: 1
+        remaining_stock:
+          type: integer
+          description: 剩餘庫存（成功時）
+          example: 2
+        message:
+          type: string
+          description: 訊息
+          example: "購買成功"
+        error:
+          type: string
+          description: 錯誤代碼（失敗時）
+          enum:
+            - NOT_IN_QUEUE
+            - NOT_READY
+            - TIMEOUT
+            - INSUFFICIENT_STOCK
+            - ALREADY_PURCHASED
+            - INVALID_REQUEST
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: 錯誤代碼
+        message:
+          type: string
+          description: 錯誤訊息
+
+  responses:
+    BadRequest:
+      description: 請求參數錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: 資源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: 伺服器內部錯誤
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

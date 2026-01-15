@@ -1,104 +1,59 @@
-# Implementation Plan: [FEATURE]
+# 功能規劃：[功能名稱]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+## 憲章合規性檢查
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+- [ ] 符合 MVP 原則：僅實作當前階段必需功能
+- [ ] 可測試性：已規劃測試策略
+- [ ] 品質標準：已考慮程式碼品質要求
+- [ ] 正體中文：文件使用正體中文撰寫
+- [ ] 漸進式開發：功能可拆分為多個迭代
 
-## Summary
+## 功能概述
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[簡要描述功能的目的和價值]
 
-## Technical Context
+## 範圍界定
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+### 包含範圍
+- [明確列出此版本要實作的功能]
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+### 不包含範圍（未來迭代）
+- [明確列出此次不實作但未來可能需要的功能]
 
-## Constitution Check
+## 測試策略
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+### 單元測試
+- [需要單元測試的模組和函數]
 
-[Gates determined based on constitution file]
+### 整合測試
+- [需要整合測試的場景]
 
-## Project Structure
+### 測試覆蓋率目標
+- [預期的測試覆蓋率]
 
-### Documentation (this feature)
+## 實作計劃
 
-```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+### 階段 1：[最小可行版本]
+- [可運行的最小功能集]
+- [預期交付物]
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+### 階段 2：[擴展功能]（如需要）
+- [基於階段 1 回饋的擴展]
+- [預期交付物]
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+## 文件要求
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+- [ ] API 文件（如適用）
+- [ ] 使用者文件（如適用）
+- [ ] 內部文件（如適用）
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+## 風險評估
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+- [潛在風險和應對措施]
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+## 驗收標準
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
-
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
-
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+- [ ] 功能符合 MVP 要求
+- [ ] 測試覆蓋率達標
+- [ ] 程式碼通過品質檢查
+- [ ] 文件完整且使用正體中文

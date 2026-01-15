@@ -1,61 +1,64 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
+# Setup plan script - returns paths for planning workflow
 set -e
 
-# Parse command line arguments
-JSON_MODE=false
-ARGS=()
+JSON_OUTPUT=false
 
-for arg in "$@"; do
-    case "$arg" in
-        --json) 
-            JSON_MODE=true 
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --json|--Json|-Json)
+            JSON_OUTPUT=true
+            shift
             ;;
-        --help|-h) 
-            echo "Usage: $0 [--json]"
-            echo "  --json    Output results in JSON format"
-            echo "  --help    Show this help message"
-            exit 0 
-            ;;
-        *) 
-            ARGS+=("$arg") 
+        *)
+            shift
             ;;
     esac
 done
 
-# Get script directory and load common functions
-SCRIPT_DIR="$(CDPATH="" cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+# Find the current feature directory
+# Look for spec.md files in specs/ directory
+SPECS_DIR="specs"
+FEATURE_DIR=""
 
-# Get all paths and variables from common functions
-eval $(get_feature_paths)
-
-# Check if we're on a proper feature branch (only for git repos)
-check_feature_branch "$CURRENT_BRANCH" "$HAS_GIT" || exit 1
-
-# Ensure the feature directory exists
-mkdir -p "$FEATURE_DIR"
-
-# Copy plan template if it exists
-TEMPLATE="$REPO_ROOT/.specify/templates/plan-template.md"
-if [[ -f "$TEMPLATE" ]]; then
-    cp "$TEMPLATE" "$IMPL_PLAN"
-    echo "Copied plan template to $IMPL_PLAN"
-else
-    echo "Warning: Plan template not found at $TEMPLATE"
-    # Create a basic plan file if template doesn't exist
-    touch "$IMPL_PLAN"
+# Try to find the most recent or current feature
+if [ -d "$SPECS_DIR" ]; then
+    # Get the first feature directory (or we can make it smarter)
+    FEATURE_DIR=$(find "$SPECS_DIR" -maxdepth 1 -type d -name "[0-9]*" | sort -V | tail -1)
 fi
 
-# Output results
-if $JSON_MODE; then
-    printf '{"FEATURE_SPEC":"%s","IMPL_PLAN":"%s","SPECS_DIR":"%s","BRANCH":"%s","HAS_GIT":"%s"}\n' \
-        "$FEATURE_SPEC" "$IMPL_PLAN" "$FEATURE_DIR" "$CURRENT_BRANCH" "$HAS_GIT"
-else
-    echo "FEATURE_SPEC: $FEATURE_SPEC"
-    echo "IMPL_PLAN: $IMPL_PLAN" 
-    echo "SPECS_DIR: $FEATURE_DIR"
-    echo "BRANCH: $CURRENT_BRANCH"
-    echo "HAS_GIT: $HAS_GIT"
+# If no feature found, try to detect from git branch
+if [ -z "$FEATURE_DIR" ] && git rev-parse --git-dir > /dev/null 2>&1; then
+    BRANCH_NAME=$(git branch --show-current 2>/dev/null || echo "")
+    if [ -n "$BRANCH_NAME" ] && [[ "$BRANCH_NAME" =~ ^[0-9]+- ]]; then
+        FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
+    fi
 fi
 
+# Default to the first feature if still not found
+if [ -z "$FEATURE_DIR" ]; then
+    FEATURE_DIR="$SPECS_DIR/1-anti-crawler-queue"
+fi
+
+FEATURE_SPEC="${FEATURE_DIR}/spec.md"
+IMPL_PLAN="${FEATURE_DIR}/plan.md"
+BRANCH=$(basename "$FEATURE_DIR")
+
+if [ "$JSON_OUTPUT" = true ]; then
+    cat <<EOF
+{
+  "FEATURE_SPEC": "$FEATURE_SPEC",
+  "IMPL_PLAN": "$IMPL_PLAN",
+  "SPECS_DIR": "$SPECS_DIR",
+  "BRANCH": "$BRANCH",
+  "FEATURE_DIR": "$FEATURE_DIR"
+}
+EOF
+else
+    echo "Feature Spec: $FEATURE_SPEC"
+    echo "Implementation Plan: $IMPL_PLAN"
+    echo "Specs Directory: $SPECS_DIR"
+    echo "Branch: $BRANCH"
+fi

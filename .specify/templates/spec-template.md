@@ -1,115 +1,79 @@
-# Feature Specification: [FEATURE NAME]
+# 功能規格：[功能名稱]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+## 憲章合規性檢查
 
-## User Scenarios & Testing *(mandatory)*
+- [ ] 符合 MVP 原則
+- [ ] 可測試性要求已明確
+- [ ] 品質標準已定義
+- [ ] 正體中文文件要求
 
-<!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
--->
+## 需求描述
 
-### User Story 1 - [Brief Title] (Priority: P1)
+### 業務需求
+[描述解決的業務問題和使用者需求]
 
-[Describe this user journey in plain language]
+### 功能需求
+[詳細描述功能行為和預期結果]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+## 技術規格
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+### 架構設計
+[高層架構說明，遵循 MVP 原則，避免過度設計]
 
-**Acceptance Scenarios**:
+### API 設計（如適用）
+[API 端點、參數、回應格式]
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+### 資料模型（如適用）
+[資料結構和關係，僅包含當前階段需要的欄位]
 
----
+## 測試規格
 
-### User Story 2 - [Brief Title] (Priority: P2)
+### 測試案例
+1. **測試案例名稱**
+   - 前置條件：[條件]
+   - 測試步驟：[步驟]
+   - 預期結果：[結果]
+   - 測試類型：[單元/整合/端對端]
 
-[Describe this user journey in plain language]
+### 測試資料
+[測試所需的資料和設定]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+## 文件規格
 
-**Independent Test**: [Describe how this can be tested independently]
+### API 文件
+- [需要文件的 API 端點和方法]
 
-**Acceptance Scenarios**:
+### 使用者文件
+- [需要文件的使用者功能]
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+### 開發者文件
+- [需要文件的內部實作細節]
 
----
+## 驗收標準
 
-### User Story 3 - [Brief Title] (Priority: P3)
+### 功能驗收
+- [ ] 所有功能需求已實作
+- [ ] 功能符合規格描述
+- [ ] 錯誤處理正確
 
-[Describe this user journey in plain language]
+### 品質驗收
+- [ ] 測試覆蓋率達標（核心邏輯 ≥ 80%）
+- [ ] 程式碼通過靜態分析
+- [ ] 無明顯技術債
 
-**Why this priority**: [Explain the value and why it has this priority level]
+### 文件驗收
+- [ ] 所有文件使用正體中文
+- [ ] API 文件完整
+- [ ] 使用者文件清晰易懂
 
-**Independent Test**: [Describe how this can be tested independently]
+## 限制與假設
 
-**Acceptance Scenarios**:
+### 技術限制
+[已知的技術限制]
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+### 業務假設
+[基於的業務假設]
 
----
+## 未來擴展（僅供參考，不在此版本實作）
 
-[Add more user stories as needed, each with an assigned priority]
-
-### Edge Cases
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
-
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
-
-## Requirements *(mandatory)*
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
-
-### Functional Requirements
-
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
-
-*Example of marking unclear requirements:*
-
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
-
-### Key Entities *(include if feature involves data)*
-
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
-
-## Success Criteria *(mandatory)*
-
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
-
-### Measurable Outcomes
-
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+[未來可能的功能擴展，用於參考，但不應影響當前設計]
