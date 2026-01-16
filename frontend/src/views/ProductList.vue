@@ -1,6 +1,11 @@
 <template>
   <div class="product-list">
-    <h2>商品列表</h2>
+    <div class="header">
+      <h2>商品列表</h2>
+      <button class="btn btn-primary" @click="resetStock" :disabled="resetting">
+        {{ resetting ? '重置中...' : '重設球鞋庫存' }}
+      </button>
+    </div>
     
     <div v-if="loading" class="loading">載入中...</div>
     
@@ -34,7 +39,8 @@ export default {
     return {
       products: [],
       loading: true,
-      error: null
+      error: null,
+      resetting: false
     }
   },
   mounted() {
@@ -60,12 +66,42 @@ export default {
     
     formatPrice(price) {
       return (price / 100).toLocaleString('zh-TW')
+    },
+    
+    async resetStock() {
+      if (!confirm('確定要重置所有商品庫存嗎？')) {
+        return
+      }
+      
+      try {
+        this.resetting = true
+        await api.resetStock()
+        alert('庫存已成功重置！')
+        // 重新載入商品列表
+        await this.fetchProducts()
+      } catch (error) {
+        alert('重置庫存失敗：' + (error.message || '未知錯誤'))
+        console.error('重置庫存失敗:', error)
+      } finally {
+        this.resetting = false
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

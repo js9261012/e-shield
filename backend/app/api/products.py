@@ -22,3 +22,10 @@ async def get_product(product_id: str):
     if not product:
         raise HTTPException(status_code=404, detail="商品不存在")
     return product
+
+
+@router.post("/products/reset-stock")
+async def reset_stock():
+    """重置所有商品庫存為初始值"""
+    ProductService.reset_stock()
+    return {"success": True, "message": "庫存已重置"}

@@ -92,3 +92,46 @@ class ProductService:
             total_stock=int(product_info.get("total_stock", 0)),
             remaining_stock=remaining_stock
         )
+    
+    @staticmethod
+    def reset_stock():
+        """重置所有商品庫存為初始值"""
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("開始重置商品庫存")
+        
+        redis_client = get_redis_client()
+        
+        products = [
+            {
+                "id": "1",
+                "name": "限量球鞋",
+                "image_url": "/images/shoes.png",
+                "price": 9999,
+                "total_stock": 5
+            }
+        ]
+        
+        for product_data in products:
+            product_id = product_data["id"]
+            stock_key = ProductService._get_stock_key(product_id)
+            product_key = ProductService._get_product_key(product_id)
+            
+            # 重置庫存為初始值
+            redis_client.set(stock_key, product_data["total_stock"])
+            
+            # 確保商品資訊存在
+            if not redis_client.exists(product_key):
+                redis_client.hset(
+                    product_key,
+                    mapping={
+                        "id": product_data["id"],
+                        "name": product_data["name"],
+                        "image_url": product_data["image_url"],
+                        "price": str(product_data["price"]),
+                        "total_stock": str(product_data["total_stock"])
+                    }
+                )
+        
+        logger.info("商品庫存重置完成")
+        return True

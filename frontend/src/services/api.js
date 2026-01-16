@@ -70,5 +70,10 @@ export default {
       quantity: quantity,
       session_id: sessionId
     })
+  },
+  
+  // 重置庫存 API
+  async resetStock() {
+    return api.post('/products/reset-stock')
   }
 }
