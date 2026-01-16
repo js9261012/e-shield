@@ -16,7 +16,7 @@ class TurnstileService:
         """取得 Turnstile Secret Key"""
         return os.getenv(
             "TURNSTILE_SECRET_KEY",
-            "1x0000000000000000000000000000000AA"  # 測試模式預設金鑰
+            "1x0000000000000000000000000000000AA"
         )
     
     @staticmethod
@@ -24,10 +24,6 @@ class TurnstileService:
         """
         驗證 Turnstile token
         
-        Args:
-            token: Turnstile token
-            remote_ip: 使用者 IP（可選）
-            
         Returns:
             Tuple[bool, Optional[str]]: (是否驗證成功, 錯誤訊息)
         """
@@ -35,8 +31,6 @@ class TurnstileService:
             return (False, "MISSING_TOKEN")
         
         secret_key = TurnstileService.get_secret_key()
-        
-        # 準備驗證請求
         data = {
             "secret": secret_key,
             "response": token
@@ -54,7 +48,6 @@ class TurnstileService:
                 response.raise_for_status()
                 result = response.json()
                 
-                # 檢查驗證結果
                 if result.get("success"):
                     return (True, None)
                 else:

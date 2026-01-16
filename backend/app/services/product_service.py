@@ -21,21 +21,18 @@ class ProductService:
     
     @staticmethod
     def initialize_products():
-        """初始化商品資料到 Redis（加入日誌）"""
+        """初始化商品資料到 Redis"""
         import logging
         logger = logging.getLogger(__name__)
         logger.info("開始初始化商品資料")
-        """
-        初始化商品資料到 Redis
-        建立 3 個測試商品，每個庫存 5 雙
-        """
+        
         redis_client = get_redis_client()
         
         products = [
             {
                 "id": "1",
                 "name": "限量球鞋",
-                "image_url": "/images/shoes.png",  # 放在 frontend/public/images/ 資料夾
+                "image_url": "/images/shoes.png",
                 "price": 9999,
                 "total_stock": 5
             }
@@ -46,10 +43,7 @@ class ProductService:
             stock_key = ProductService._get_stock_key(product_id)
             product_key = ProductService._get_product_key(product_id)
             
-            # 設定庫存
             redis_client.set(stock_key, product_data["total_stock"])
-            
-            # 儲存商品資訊（使用 Hash）
             redis_client.hset(
                 product_key,
                 mapping={
@@ -66,8 +60,6 @@ class ProductService:
         """取得所有商品列表"""
         redis_client = get_redis_client()
         products = []
-        
-        # 取得所有商品 ID（從庫存 key 推斷）
         keys = redis_client.keys("product:stock:*")
         
         for key in keys:
@@ -86,11 +78,9 @@ class ProductService:
         product_key = ProductService._get_product_key(product_id)
         stock_key = ProductService._get_stock_key(product_id)
         
-        # 檢查商品是否存在
         if not redis_client.exists(product_key):
             return None
         
-        # 取得商品資訊
         product_info = redis_client.hgetall(product_key)
         remaining_stock = int(redis_client.get(stock_key) or 0)
         

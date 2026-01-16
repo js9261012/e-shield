@@ -31,17 +31,11 @@ class PurchaseResponse(BaseModel):
 
 @router.post("/purchase", response_model=PurchaseResponse)
 async def purchase(request: PurchaseRequest):
-    """
-    處理購買
-    
-    只允許 queue:active 中位置為 0 的使用者購買
-    """
-    # 驗證會話
+    """處理購買（僅搖滾區使用者可購買）"""
     session = SessionService.get_session(request.session_id)
     if not session:
         raise HTTPException(status_code=404, detail="會話不存在")
     
-    # 檢查是否在搖滾區（搖滾區中所有人都可以購買）
     position_active = QueueService.get_active_position(request.product_id, request.session_id)
     
     if position_active is None:
@@ -51,9 +45,6 @@ async def purchase(request: PurchaseRequest):
             message="您不在搖滾區，無法購買"
         )
     
-    # 移除購買時限檢查（搖滾區中所有人都可以購買，不需要時限）
-    
-    # 檢查購買數量
     if request.quantity != 1:
         return PurchaseResponse(
             success=False,
@@ -61,7 +52,6 @@ async def purchase(request: PurchaseRequest):
             message="每人限購 1 雙"
         )
     
-    # MVP 版本：使用 Lua 腳本扣減庫存（確保原子性，防止超賣）
     success, error, remaining_stock = InventoryService.decrement_stock(
         request.product_id,
         request.quantity,
@@ -88,19 +78,13 @@ async def purchase(request: PurchaseRequest):
                 message="購買失敗"
             )
     
-    # 購買成功：從搖滾區移除
     QueueService.remove_from_active(request.product_id, request.session_id)
-    
-    # 更新會話狀態
     SessionService.update_session(
         request.session_id,
         queue_status="purchased"
     )
-    
-    # 從排隊區補充新人到搖滾區
     QueueService.move_to_active(request.product_id)
     
-    # 生成簡單的訂單 ID（MVP 版本）
     import uuid
     order_id = f"order_{uuid.uuid4().hex[:8]}"
     

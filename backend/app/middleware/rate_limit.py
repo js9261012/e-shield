@@ -23,17 +23,14 @@ class RateLimiter:
     
     def _get_client_ip(self, request: Request) -> str:
         """取得客戶端 IP"""
-        # 檢查 X-Forwarded-For header（代理/負載平衡器）
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
         
-        # 檢查 X-Real-IP header
         real_ip = request.headers.get("X-Real-IP")
         if real_ip:
             return real_ip
         
-        # 使用直接連線 IP
         if request.client:
             return request.client.host
         
@@ -64,15 +61,10 @@ class RateLimiter:
         current_time = int(time.time())
         window_start = current_time - self.window_seconds
         
-        # 使用 Redis Sorted Set 儲存請求時間戳
-        # 移除過期的請求記錄
         redis_client.zremrangebyscore(rate_limit_key, 0, window_start)
-        
-        # 計算當前窗口內的請求數
         current_count = redis_client.zcard(rate_limit_key)
         
         if current_count >= self.max_requests:
-            # 超過限制
             raise HTTPException(
                 status_code=429,
                 detail={
@@ -82,13 +74,11 @@ class RateLimiter:
                 }
             )
         
-        # 記錄本次請求
         redis_client.zadd(rate_limit_key, {str(current_time): current_time})
         redis_client.expire(rate_limit_key, self.window_seconds)
         
         return True
 
 
-# 建立預設速率限制器實例
 default_rate_limiter = RateLimiter(max_requests=10, window_seconds=60)
-queue_rate_limiter = RateLimiter(max_requests=20, window_seconds=60)  # 加入佇列限制（放寬以便測試）
+queue_rate_limiter = RateLimiter(max_requests=20, window_seconds=60)

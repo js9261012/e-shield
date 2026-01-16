@@ -21,18 +21,15 @@ import logging
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """應用程式生命週期管理"""
-    # 設定日誌
     setup_logging()
     logger = logging.getLogger(__name__)
     
-    # 啟動時初始化
     logger.info("初始化商品資料...")
     ProductService.initialize_products()
     logger.info("啟動佇列管理任務...")
     start_queue_manager()
     logger.info("應用程式啟動完成")
     yield
-    # 關閉時清理
     logger.info("應用程式關閉中...")
 
 
@@ -43,21 +40,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# 註冊錯誤處理器
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-# CORS 設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 開發環境允許所有來源
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 註冊路由
 app.include_router(health.router, prefix="/api", tags=["健康檢查"])
 app.include_router(products.router, prefix="/api", tags=["商品"])
 app.include_router(queue.router, prefix="/api", tags=["佇列"])

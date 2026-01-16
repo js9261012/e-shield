@@ -24,7 +24,6 @@ def redis_client():
 def cleanup_redis(redis_client):
     """每個測試後清理 Redis"""
     yield
-    # 清理測試資料
     keys = redis_client.keys("test:*")
     if keys:
         redis_client.delete(*keys)

@@ -13,11 +13,9 @@ class TestProductService:
         """測試初始化商品"""
         ProductService.initialize_products()
         
-        # 檢查商品是否建立
         products = ProductService.get_all_products()
         assert len(products) == 3
         
-        # 檢查庫存
         stock = redis_client.get("product:stock:1")
         assert stock == "5"
     

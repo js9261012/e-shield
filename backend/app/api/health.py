@@ -9,12 +9,8 @@ router = APIRouter()
 
 @router.get("/health")
 async def health_check():
-    """
-    健康檢查端點
-    檢查 API 和 Redis 連線狀態
-    """
+    """健康檢查端點"""
     try:
-        # 檢查 Redis 連線
         redis_client = get_redis_client()
         redis_client.ping()
         

@@ -20,9 +20,6 @@ class SessionService:
         """
         建立新會話
         
-        Args:
-            turnstile_verified: Turnstile 驗證狀態
-            
         Returns:
             str: 會話 ID
         """
@@ -33,7 +30,6 @@ class SessionService:
         import time
         current_timestamp = int(time.time() * 1000)
         
-        # 建立會話資料
         session_data = {
             "turnstile_verified": "true" if turnstile_verified else "false",
             "verified_at": str(current_timestamp) if turnstile_verified else "",
@@ -41,7 +37,7 @@ class SessionService:
         }
         
         redis_client.hset(session_key, mapping=session_data)
-        redis_client.expire(session_key, 86400)  # 24 小時過期
+        redis_client.expire(session_key, 86400)
         
         return session_id
     
@@ -77,6 +73,5 @@ class SessionService:
         if not redis_client.exists(session_key):
             return
         
-        # 轉換值為字串
         update_data = {k: str(v) if v is not None else "" for k, v in kwargs.items()}
         redis_client.hset(session_key, mapping=update_data)
